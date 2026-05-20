@@ -1,0 +1,6 @@
+PLAN.md
+node_modules
+.env
+.vscode
+./apps/api
+./apps/web
