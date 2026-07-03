@@ -88,3 +88,29 @@ export const uploadToR2WithRembg = async (file: Express.Multer.File) => {
     hd: hdUrl,
   };
 };
+
+export const storeVideoInR2 = async (videoUrl: string) => {
+  //Download video
+  const res = await fetch(videoUrl);
+
+  if (!res.ok) {
+    throw new Error("Failed to download video from Runway");
+  }
+
+  const buffer = Buffer.from(await res.arrayBuffer());
+
+  const key = `videos/${uuid()}.mp4`;
+
+  // upload to R2
+  await R2.send(
+    new PutObjectCommand({
+      Bucket: ENV.R2_BUCKET!,
+      Key: key,
+      Body: buffer,
+      ContentType: "video/mp4",
+    }),
+  );
+
+  // Return Public URL
+  return `${ENV.R2_PUBLIC_URL}/${key}`;
+};
